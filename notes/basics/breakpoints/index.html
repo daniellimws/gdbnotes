@@ -1,0 +1,92 @@
+<!doctype html><html lang=en><head><title>Breakpoints :: GDB Notes</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="c basic.c    // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; }   break To inspect the memory contents of the running process, we need to set a breakpoint.
+break *&amp;lt;function&amp;gt; To set a breakpoint at the start of main, call break *main.
+(gdb) break *main Breakpoint 1 at 0x4004e7: file basic.c, line 5. This command only works when the binary is unstripped."><meta name=keywords content><meta name=robots content="noodp"><link rel=canonical href=/notes/basics/breakpoints/><link rel=stylesheet href=/assets/style.css><link rel=stylesheet href=/assets/blue.css><link rel=apple-touch-icon href=/img/apple-touch-icon-192x192.png><link rel="shortcut icon" href=/img/favicon/blue.png><meta name=twitter:card content="summary"><meta name=twitter:site content><meta name=twitter:creator content><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="og:title" content="Breakpoints"><meta property="og:description" content="c basic.c    // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; }   break To inspect the memory contents of the running process, we need to set a breakpoint.
+break *&amp;lt;function&amp;gt; To set a breakpoint at the start of main, call break *main.
+(gdb) break *main Breakpoint 1 at 0x4004e7: file basic.c, line 5. This command only works when the binary is unstripped."><meta property="og:url" content="/notes/basics/breakpoints/"><meta property="og:site_name" content="GDB Notes"><meta property="og:image" content="/img/favicon/blue.png"><meta property="og:image:width" content="2048"><meta property="og:image:height" content="1024"><meta property="article:section" content="Basics"><meta property="article:published_time" content="2020-05-07 00:00:00 +0000 UTC"></head><body class=blue><div class="container center headings--one-size"><header class=header><div class=header__inner><div class=header__logo><a href=/><div class=logo>GDB Notes</div></a></div><div class=menu-trigger>menu</div></div><nav class=menu><ul class="menu__inner menu__inner--desktop"><li><a href=/about>About</a></li><li><a href=/showcase>Showcase</a></li></ul><ul class="menu__inner menu__inner--mobile"><li><a href=/about>About</a></li><li><a href=/showcase>Showcase</a></li></ul></nav></header><div class=content><div class=post><h1 class=post-title><a href=/notes/basics/breakpoints/>Breakpoints</a></h1><div class=post-meta><span class=post-date>2020-05-07</span></div><span class=post-tags>#<a href=/tags/basics/>basics</a>&nbsp;</span><div class=post-content><div><div class=collapsable-code><input id=1 type=checkbox checked>
+<label for=1><span class=collapsable-code__language>c</span>
+<span class=collapsable-code__title>basic.c</span>
+<span class=collapsable-code__toggle data-label-expand=Show data-label-collapse=Hide></span></label><pre class=language-c><code>
+// gcc -g basic.c -o basic -no-pie
+#include &lt;stdio.h&gt;
+
+int main()
+{
+   int a = 10;
+
+   printf(&#34;%d\n&#34;, a);
+   return 0;
+}
+</code></pre></div><h2 id=break>break<a href=#break class=hanchor arialabel=Anchor>&#8983;</a></h2><p>To inspect the memory contents of the running process, we need to set a breakpoint.</p><h3 id=break-function>break *&lt;function><a href=#break-function class=hanchor arialabel=Anchor>&#8983;</a></h3><p>To set a breakpoint at the start of <code>main</code>, call <code>break *main</code>.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> break *main
+Breakpoint <span style=color:#ae81ff>1</span> at 0x4004e7: file basic.c, line 5.
+</code></pre></div><p>This command only works when the binary is unstripped. If a binary is stripped, the symbols (function names) are gone, and the following output will be obtained instead.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> break main
+Function <span style=color:#e6db74>&#34;main&#34;</span> not defined.
+</code></pre></div><h3 id=break-address>break *&lt;address><a href=#break-address class=hanchor arialabel=Anchor>&#8983;</a></h3><p>This command is for breaking in the middle of a function, or when there are no symbols. For example, to set a breakpoint after <code>printf</code> is called:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> set disassembly-flavor intel
+<span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> disas main
+Dump of assembler code <span style=color:#66d9ef>for</span> <span style=color:#66d9ef>function</span> main:
+   0x00000000004004e7 &lt;+0&gt;:	push   rbp
+   0x00000000004004e8 &lt;+1&gt;:	mov    rbp,rsp
+   0x00000000004004eb &lt;+4&gt;:	sub    rsp,0x10
+   0x00000000004004ef &lt;+8&gt;:	mov    DWORD PTR <span style=color:#f92672>[</span>rbp-0x4<span style=color:#f92672>]</span>,0xa
+   0x00000000004004f6 &lt;+15&gt;:	mov    eax,DWORD PTR <span style=color:#f92672>[</span>rbp-0x4<span style=color:#f92672>]</span>
+   0x00000000004004f9 &lt;+18&gt;:	mov    esi,eax
+   0x00000000004004fb &lt;+20&gt;:	lea    rdi,<span style=color:#f92672>[</span>rip+0xa2<span style=color:#f92672>]</span>        <span style=color:#75715e># 0x4005a4</span>
+   0x0000000000400502 &lt;+27&gt;:	mov    eax,0x0
+   0x0000000000400507 &lt;+32&gt;:	call   0x4003f0 &lt;printf@plt&gt;
+   0x000000000040050c &lt;+37&gt;:	mov    eax,0x0               <span style=color:#75715e># break here</span>
+   0x0000000000400511 &lt;+42&gt;:	leave
+   0x0000000000400512 &lt;+43&gt;:	ret
+End of assembler dump.
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> break *0x40050c
+Breakpoint <span style=color:#ae81ff>2</span> at 0x40050c: file basic.c, line 9.
+</code></pre></div><blockquote><p><strong>Don&rsquo;t forget the <code>*</code> in front of the symbol or address when calling <code>break</code>!</strong></p></blockquote><h2 id=info-break>info break<a href=#info-break class=hanchor arialabel=Anchor>&#8983;</a></h2><p>This command is to list the breakpoints that are set.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> info break
+Num     Type           Disp Enb Address            What
+<span style=color:#ae81ff>1</span>       breakpoint     keep y   0x00000000004004e7 in main at basic.c:5
+<span style=color:#ae81ff>2</span>       breakpoint     keep y   0x000000000040050c in main at basic.c:9
+</code></pre></div><h2 id=enabledisable-break-num>enable/disable break [num]<a href=#enabledisable-break-num class=hanchor arialabel=Anchor>&#8983;</a></h2><p>This command is to enable/disable/delete a breakpoint.</p><p>Notice that in the output below, the <code>Enb</code> field of breakpoint 1 is set to <code>n</code>.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> disable break <span style=color:#ae81ff>1</span>
+<span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> info break
+Num     Type           Disp Enb Address            What
+<span style=color:#ae81ff>1</span>       breakpoint     keep n   0x00000000004004e7 in main at basic.c:5
+<span style=color:#ae81ff>2</span>       breakpoint     keep y   0x000000000040050c in main at basic.c:9
+</code></pre></div><p>To set the <code>Enb</code> field of breakpoint 1 back to <code>y</code>:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> enable break <span style=color:#ae81ff>1</span>
+<span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> info break
+Num     Type           Disp Enb Address            What
+<span style=color:#ae81ff>1</span>       breakpoint     keep y   0x00000000004004e7 in main at basic.c:5
+<span style=color:#ae81ff>2</span>       breakpoint     keep y   0x000000000040050c in main at basic.c:9
+</code></pre></div><p>To disable all breakpoints:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> disable break
+<span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> info break
+Num     Type           Disp Enb Address            What
+<span style=color:#ae81ff>1</span>       breakpoint     keep n   0x00000000004004e7 in main at basic.c:5
+<span style=color:#ae81ff>2</span>       breakpoint     keep n   0x000000000040050c in main at basic.c:9
+</code></pre></div><p>To enable all breakpoints:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> enable break
+<span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> info break
+Num     Type           Disp Enb Address            What
+<span style=color:#ae81ff>1</span>       breakpoint     keep y   0x00000000004004e7 in main at basic.c:5
+<span style=color:#ae81ff>2</span>       breakpoint     keep y   0x000000000040050c in main at basic.c:9
+</code></pre></div><h2 id=delete-break-num>delete break [num]<a href=#delete-break-num class=hanchor arialabel=Anchor>&#8983;</a></h2><p>To delete a breakpoint:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> delete break <span style=color:#ae81ff>1</span>
+<span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> info break
+Num     Type           Disp Enb Address            What
+<span style=color:#ae81ff>2</span>       breakpoint     keep y   0x000000000040050c in main at basic.c:9
+</code></pre></div><p>To delete all breakpoints:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> delete break
+Delete all breakpoints? <span style=color:#f92672>(</span>y or n<span style=color:#f92672>)</span> y
+<span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> info break
+No breakpoints or watchpoints.
+</code></pre></div><h2 id=run>run<a href=#run class=hanchor arialabel=Anchor>&#8983;</a></h2><p>This command is to start running the progranm. With breakpoints set, the program will pause at the first breakpoint encountered.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> break *main
+Breakpoint <span style=color:#ae81ff>1</span> at 0x4004e7: file basic.c, line 5.
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> r
+Starting program: /tmp/basic
+
+Breakpoint 1, main <span style=color:#f92672>()</span> at basic.c:5
+5	<span style=color:#f92672>{</span>
+</code></pre></div><h2 id=c-continue>c (continue)<a href=#c-continue class=hanchor arialabel=Anchor>&#8983;</a></h2><p>When the program is paused, use this command to continue running until the next breakpoint.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> break *0x40050c
+Breakpoint <span style=color:#ae81ff>2</span> at 0x40050c: file basic.c, line 9.
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> c
+Continuing.
+<span style=color:#ae81ff>10</span>
+
+Breakpoint 2, main <span style=color:#f92672>()</span> at basic.c:9
+9	   <span style=color:#66d9ef>return</span> 0;
+</code></pre></div></div></div><div class=pagination><div class=pagination__title><span class=pagination__title-h>Read other posts</span><hr></div><div class=pagination__buttons><span class="button previous"><a href=/notes/basics/usage/><span class=button__icon>←</span>
+<span class=button__text>Usage</span></a></span>
+<span class="button next"><a href=/notes/basics/stepping/><span class=button__text>Stepping</span>
+<span class=button__icon>→</span></a></span></div></div></div></div><footer class=footer><div class=footer__inner><div class=copyright><span>© 2021 Powered by <a href=http://gohugo.io>Hugo</a></span>
+<span>:: Theme made by <a href=https://twitter.com/panr>panr</a></span></div></div></footer><script src=/assets/main.js></script><script src=/assets/prism.js></script></div></body></html>

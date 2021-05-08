@@ -1,0 +1,830 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Notes on GDB Notes</title><link>/notes/</link><description>Recent content in Notes on GDB Notes</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 07 May 2020 00:00:00 +0000</lastBuildDate><atom:link href="/notes/index.xml" rel="self" type="application/rss+xml"/><item><title>Usage</title><link>/notes/basics/usage/</link><pubDate>Thu, 07 May 2020 00:00:00 +0000</pubDate><guid>/notes/basics/usage/</guid><description>c basic.c // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; } In these examples, compile the code above with the -g flag to enable debugging information, and -no-pie to disable compiling as a position-independent executable (which makes debugging less straightforward).
+start gdb Start using GDB on a binary with gdb -q &amp;lt;program&amp;gt;.</description><content>
+&lt;div class="collapsable-code">
+&lt;input id="1" type="checkbox" />
+&lt;label for="1">
+&lt;span class="collapsable-code__language">c&lt;/span>
+&lt;span class="collapsable-code__title">basic.c&lt;/span>
+&lt;span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide">&lt;/span>
+&lt;/label>
+&lt;pre class="language-c" >&lt;code>
+// gcc -g basic.c -o basic -no-pie
+#include &amp;lt;stdio.h&amp;gt;
+int main()
+{
+int a = 10;
+printf(&amp;#34;%d\n&amp;#34;, a);
+return 0;
+}
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;blockquote>
+&lt;p>In these examples, compile the code above with the &lt;code>-g&lt;/code> flag to enable debugging information, and &lt;code>-no-pie&lt;/code> to disable compiling as a position-independent executable (which makes debugging less straightforward).&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="start-gdb">start gdb&lt;/h2>
+&lt;p>Start using GDB on a binary with &lt;code>gdb -q &amp;lt;program&amp;gt;&lt;/code>. The &lt;code>-q&lt;/code> option tells GDB to start in quiet mode. Try running GDB without it.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">❯ gdb -q ./basic
+Reading symbols from ./basic...done.
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="info-functions">info functions&lt;/h2>
+&lt;p>Normally when debugging or reverse engineering, the list of functions is already known, either from the source code or from a disassembler like IDA, Ghidra or Rizin/R2.
+Nonetheless, this is a command worth knowing.&lt;/p>
+&lt;p>&lt;code>info functions&lt;/code> lists the functions in the binary.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> info functions
+All defined functions:
+File basic.c:
+int main&lt;span style="color:#f92672">()&lt;/span>;
+Non-debugging symbols:
+0x00000000004003c8 _init
+0x00000000004003f0 printf@plt
+0x0000000000400400 _start
+0x0000000000400430 _dl_relocate_static_pie
+0x0000000000400440 deregister_tm_clones
+0x0000000000400470 register_tm_clones
+0x00000000004004b0 __do_global_dtors_aux
+0x00000000004004e0 frame_dummy
+0x0000000000400520 __libc_csu_init
+0x0000000000400590 __libc_csu_fini
+0x0000000000400594 _fini
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="list-function">list &amp;lt;function&amp;gt;&lt;/h2>
+&lt;p>If a binary is compiled with the &lt;code>-g&lt;/code> flag, the &lt;code>list&lt;/code> command can be used to view the source of the file. For example:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> list main
+1 // gcc -g basic.c -o basic -no-pie
+2 &lt;span style="color:#75715e">#include &amp;lt;stdio.h&amp;gt;&lt;/span>
+&lt;span style="color:#ae81ff">3&lt;/span>
+4 int main&lt;span style="color:#f92672">()&lt;/span>
+5 &lt;span style="color:#f92672">{&lt;/span>
+6 int a &lt;span style="color:#f92672">=&lt;/span> 10;
+&lt;span style="color:#ae81ff">7&lt;/span>
+8 printf&lt;span style="color:#f92672">(&lt;/span>&lt;span style="color:#e6db74">&amp;#34;%d\n&amp;#34;&lt;/span>, a&lt;span style="color:#f92672">)&lt;/span>;
+9 &lt;span style="color:#66d9ef">return&lt;/span> 0;
+10 &lt;span style="color:#f92672">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="disas-function">disas &amp;lt;function&amp;gt;&lt;/h2>
+&lt;p>The &lt;code>disas&lt;/code> command can be used to view the disassembly of the program.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas main
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x000000000000064a &amp;lt;+0&amp;gt;: push %rbp
+0x000000000000064b &amp;lt;+1&amp;gt;: mov %rsp,%rbp
+0x000000000000064e &amp;lt;+4&amp;gt;: sub $0x10,%rsp
+0x0000000000000652 &amp;lt;+8&amp;gt;: movl $0xa,-0x4&lt;span style="color:#f92672">(&lt;/span>%rbp&lt;span style="color:#f92672">)&lt;/span>
+0x0000000000000659 &amp;lt;+15&amp;gt;: mov -0x4&lt;span style="color:#f92672">(&lt;/span>%rbp&lt;span style="color:#f92672">)&lt;/span>,%eax
+0x000000000000065c &amp;lt;+18&amp;gt;: mov %eax,%esi
+0x000000000000065e &amp;lt;+20&amp;gt;: lea 0x9f&lt;span style="color:#f92672">(&lt;/span>%rip&lt;span style="color:#f92672">)&lt;/span>,%rdi &lt;span style="color:#75715e"># 0x704&lt;/span>
+0x0000000000000665 &amp;lt;+27&amp;gt;: mov $0x0,%eax
+0x000000000000066a &amp;lt;+32&amp;gt;: callq 0x520 &amp;lt;printf@plt&amp;gt;
+0x000000000000066f &amp;lt;+37&amp;gt;: mov $0x0,%eax
+0x0000000000000674 &amp;lt;+42&amp;gt;: leaveq
+0x0000000000000675 &amp;lt;+43&amp;gt;: retq
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="set-disassembly-flavor-intel">set disassembly-flavor intel&lt;/h3>
+&lt;p>By default, GDB displays the disassembly output in the AT&amp;amp;T syntax. To use the more familiar-looking Intel syntax, call &lt;code>set disassembly-flavor intel&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> set disassembly-flavor intel
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas main
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div></content></item><item><title>Breakpoints</title><link>/notes/basics/breakpoints/</link><pubDate>Thu, 07 May 2020 00:00:00 +0000</pubDate><guid>/notes/basics/breakpoints/</guid><description>c basic.c // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; } break To inspect the memory contents of the running process, we need to set a breakpoint.
+break *&amp;lt;function&amp;gt; To set a breakpoint at the start of main, call break *main.
+(gdb) break *main Breakpoint 1 at 0x4004e7: file basic.c, line 5. This command only works when the binary is unstripped.</description><content>
+&lt;div class="collapsable-code">
+&lt;input id="1" type="checkbox" checked />
+&lt;label for="1">
+&lt;span class="collapsable-code__language">c&lt;/span>
+&lt;span class="collapsable-code__title">basic.c&lt;/span>
+&lt;span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide">&lt;/span>
+&lt;/label>
+&lt;pre class="language-c" >&lt;code>
+// gcc -g basic.c -o basic -no-pie
+#include &amp;lt;stdio.h&amp;gt;
+int main()
+{
+int a = 10;
+printf(&amp;#34;%d\n&amp;#34;, a);
+return 0;
+}
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="break">break&lt;/h2>
+&lt;p>To inspect the memory contents of the running process, we need to set a breakpoint.&lt;/p>
+&lt;h3 id="break-function">break *&amp;lt;function&amp;gt;&lt;/h3>
+&lt;p>To set a breakpoint at the start of &lt;code>main&lt;/code>, call &lt;code>break *main&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> break *main
+Breakpoint &lt;span style="color:#ae81ff">1&lt;/span> at 0x4004e7: file basic.c, line 5.
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This command only works when the binary is unstripped. If a binary is stripped, the symbols (function names) are gone, and the following output will be obtained instead.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> break main
+Function &lt;span style="color:#e6db74">&amp;#34;main&amp;#34;&lt;/span> not defined.
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="break-address">break *&amp;lt;address&amp;gt;&lt;/h3>
+&lt;p>This command is for breaking in the middle of a function, or when there are no symbols. For example, to set a breakpoint after &lt;code>printf&lt;/code> is called:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> set disassembly-flavor intel
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas main
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0 &lt;span style="color:#75715e"># break here&lt;/span>
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> break *0x40050c
+Breakpoint &lt;span style="color:#ae81ff">2&lt;/span> at 0x40050c: file basic.c, line 9.
+&lt;/code>&lt;/pre>&lt;/div>&lt;blockquote>
+&lt;p>&lt;strong>Don&amp;rsquo;t forget the &lt;code>*&lt;/code> in front of the symbol or address when calling &lt;code>break&lt;/code>!&lt;/strong>&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="info-break">info break&lt;/h2>
+&lt;p>This command is to list the breakpoints that are set.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> info break
+Num Type Disp Enb Address What
+&lt;span style="color:#ae81ff">1&lt;/span> breakpoint keep y 0x00000000004004e7 in main at basic.c:5
+&lt;span style="color:#ae81ff">2&lt;/span> breakpoint keep y 0x000000000040050c in main at basic.c:9
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="enabledisable-break-num">enable/disable break [num]&lt;/h2>
+&lt;p>This command is to enable/disable/delete a breakpoint.&lt;/p>
+&lt;p>Notice that in the output below, the &lt;code>Enb&lt;/code> field of breakpoint 1 is set to &lt;code>n&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disable break &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> info break
+Num Type Disp Enb Address What
+&lt;span style="color:#ae81ff">1&lt;/span> breakpoint keep n 0x00000000004004e7 in main at basic.c:5
+&lt;span style="color:#ae81ff">2&lt;/span> breakpoint keep y 0x000000000040050c in main at basic.c:9
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>To set the &lt;code>Enb&lt;/code> field of breakpoint 1 back to &lt;code>y&lt;/code>:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> enable break &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> info break
+Num Type Disp Enb Address What
+&lt;span style="color:#ae81ff">1&lt;/span> breakpoint keep y 0x00000000004004e7 in main at basic.c:5
+&lt;span style="color:#ae81ff">2&lt;/span> breakpoint keep y 0x000000000040050c in main at basic.c:9
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>To disable all breakpoints:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disable break
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> info break
+Num Type Disp Enb Address What
+&lt;span style="color:#ae81ff">1&lt;/span> breakpoint keep n 0x00000000004004e7 in main at basic.c:5
+&lt;span style="color:#ae81ff">2&lt;/span> breakpoint keep n 0x000000000040050c in main at basic.c:9
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>To enable all breakpoints:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> enable break
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> info break
+Num Type Disp Enb Address What
+&lt;span style="color:#ae81ff">1&lt;/span> breakpoint keep y 0x00000000004004e7 in main at basic.c:5
+&lt;span style="color:#ae81ff">2&lt;/span> breakpoint keep y 0x000000000040050c in main at basic.c:9
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="delete-break-num">delete break [num]&lt;/h2>
+&lt;p>To delete a breakpoint:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> delete break &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> info break
+Num Type Disp Enb Address What
+&lt;span style="color:#ae81ff">2&lt;/span> breakpoint keep y 0x000000000040050c in main at basic.c:9
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>To delete all breakpoints:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> delete break
+Delete all breakpoints? &lt;span style="color:#f92672">(&lt;/span>y or n&lt;span style="color:#f92672">)&lt;/span> y
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> info break
+No breakpoints or watchpoints.
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="run">run&lt;/h2>
+&lt;p>This command is to start running the progranm. With breakpoints set, the program will pause at the first breakpoint encountered.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> break *main
+Breakpoint &lt;span style="color:#ae81ff">1&lt;/span> at 0x4004e7: file basic.c, line 5.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> r
+Starting program: /tmp/basic
+Breakpoint 1, main &lt;span style="color:#f92672">()&lt;/span> at basic.c:5
+5 &lt;span style="color:#f92672">{&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="c-continue">c (continue)&lt;/h2>
+&lt;p>When the program is paused, use this command to continue running until the next breakpoint.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> break *0x40050c
+Breakpoint &lt;span style="color:#ae81ff">2&lt;/span> at 0x40050c: file basic.c, line 9.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> c
+Continuing.
+&lt;span style="color:#ae81ff">10&lt;/span>
+Breakpoint 2, main &lt;span style="color:#f92672">()&lt;/span> at basic.c:9
+9 &lt;span style="color:#66d9ef">return&lt;/span> 0;
+&lt;/code>&lt;/pre>&lt;/div></content></item><item><title>Stepping</title><link>/notes/basics/stepping/</link><pubDate>Thu, 07 May 2020 00:00:00 +0000</pubDate><guid>/notes/basics/stepping/</guid><description>c basic.c // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; } To step through instructions in the debugger, we need to set a breakpoint, then run the program.
+(gdb) break *main Breakpoint 1 at 0x4004e7: file basic.c, line 5. (gdb) r Starting program: /tmp/basic Breakpoint 1, main () at basic.c:5 5 { Run disas to know where we currently are in the program.</description><content>
+&lt;div class="collapsable-code">
+&lt;input id="1" type="checkbox" checked />
+&lt;label for="1">
+&lt;span class="collapsable-code__language">c&lt;/span>
+&lt;span class="collapsable-code__title">basic.c&lt;/span>
+&lt;span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide">&lt;/span>
+&lt;/label>
+&lt;pre class="language-c" >&lt;code>
+// gcc -g basic.c -o basic -no-pie
+#include &amp;lt;stdio.h&amp;gt;
+int main()
+{
+int a = 10;
+printf(&amp;#34;%d\n&amp;#34;, a);
+return 0;
+}
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>To step through instructions in the debugger, we need to set a breakpoint, then run the program.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> break *main
+Breakpoint &lt;span style="color:#ae81ff">1&lt;/span> at 0x4004e7: file basic.c, line 5.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> r
+Starting program: /tmp/basic
+Breakpoint 1, main &lt;span style="color:#f92672">()&lt;/span> at basic.c:5
+5 &lt;span style="color:#f92672">{&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Run &lt;code>disas&lt;/code> to know where we currently are in the program. (This only works if the binary is not stripped.)&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="si-n-step-instruction">si [n] (step instruction)&lt;/h2>
+&lt;p>This command is to step a single instruction in GDB.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> si
+0x00000000004004e8 5 &lt;span style="color:#f92672">{&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>To step through multiple instructions, call &lt;code>s&lt;/code> with the number of steps as an argument. E.g. &lt;code>si 7&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> si &lt;span style="color:#ae81ff">7&lt;/span>
+0x0000000000400507 8 printf&lt;span style="color:#f92672">(&lt;/span>&lt;span style="color:#e6db74">&amp;#34;%d\n&amp;#34;&lt;/span>, a&lt;span style="color:#f92672">)&lt;/span>;
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>If &lt;code>si&lt;/code> is called at a &lt;code>call&lt;/code> instruction, the debugger will step into the function.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> si
+0x00000000004003f0 in printf@plt &lt;span style="color:#f92672">()&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> printf@plt:
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x00000000004003f0 &amp;lt;+0&amp;gt;: jmp QWORD PTR &lt;span style="color:#f92672">[&lt;/span>rip+0x200c22&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x601018&lt;/span>
+0x00000000004003f6 &amp;lt;+6&amp;gt;: push 0x0
+0x00000000004003fb &amp;lt;+11&amp;gt;: jmp 0x4003e0
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>As seen above, the program is now inside &lt;code>printf&lt;/code>.&lt;/p>
+&lt;h2 id="ni-n-next-instruction">ni [n] (next instruction)&lt;/h2>
+&lt;p>To avoid stepping into functions, use &lt;code>ni&lt;/code> instead.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> ni
+&lt;span style="color:#ae81ff">10&lt;/span>
+9 &lt;span style="color:#66d9ef">return&lt;/span> 0;
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Unlike &lt;code>si&lt;/code>, &lt;code>ni&lt;/code> moves immediately to the next instruction, without stepping into the &lt;code>printf&lt;/code> function.&lt;/p>
+&lt;p>Similarly, call &lt;code>ni n&lt;/code> to take n steps at once.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> ni &lt;span style="color:#ae81ff">2&lt;/span>
+0x0000000000400512 10 &lt;span style="color:#f92672">}&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="sn-stepnext">s/n (step/next)&lt;/h2>
+&lt;p>&lt;code>step&lt;/code> and &lt;code>next&lt;/code> (or their aliases &lt;code>s&lt;/code> and &lt;code>n&lt;/code>) behaves similarly to &lt;code>si&lt;/code> and &lt;code>ni&lt;/code>. However, instead of executing machine instructions, they execute lines in the source code.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> n
+6 int a &lt;span style="color:#f92672">=&lt;/span> 10;
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="untiladvance-address">until/advance *&amp;lt;address&amp;gt;&lt;/h2>
+&lt;p>In general, these two commands behave similarly - continue running until the specified address is reached. According to the &lt;a href="https://sourceware.org/gdb/onlinedocs/gdb/Continuing-and-Stepping.html">documentation&lt;/a>:&lt;/p>
+&lt;blockquote>
+&lt;p>until location&lt;/p>
+&lt;p>Continue running your program until either the specified location is reached, or the current stack frame returns. The specified location is actually reached only if it is in the current frame. This implies that until can be used to skip over recursive function invocations.&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>advance location&lt;/p>
+&lt;p>Continue running the program up to the given location. Execution will also stop upon exit from the current stack frame. This command is similar to &lt;code>until&lt;/code>, but &lt;code>advance&lt;/code> will not skip over recursive function calls, and the target location doesn’t have to be in the same frame as the current one.&lt;/p>
+&lt;/blockquote>
+&lt;p>tldr: &lt;code>until&lt;/code> only works if the location is in the current function frame, &lt;code>advance&lt;/code> doesn&amp;rsquo;t require the location to be in the current frame.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> advance *0x400507
+0x0000000000400507 in main &lt;span style="color:#f92672">()&lt;/span> at basic.c:8
+8 printf&lt;span style="color:#f92672">(&lt;/span>&lt;span style="color:#e6db74">&amp;#34;%d\n&amp;#34;&lt;/span>, a&lt;span style="color:#f92672">)&lt;/span>;
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;blockquote>
+&lt;p>&lt;strong>Note:&lt;/strong> After calling this command, all breakpoints will be disabled. Remember to turn them back on.&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="finish">finish&lt;/h2>
+&lt;p>This command is to step until the end of the function, and return from the function.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> printf@plt:
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x00000000004003f0 &amp;lt;+0&amp;gt;: jmp QWORD PTR &lt;span style="color:#f92672">[&lt;/span>rip+0x200c22&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x601018&lt;/span>
+0x00000000004003f6 &amp;lt;+6&amp;gt;: push 0x0
+0x00000000004003fb &amp;lt;+11&amp;gt;: jmp 0x4003e0
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> finish
+Run till exit from &lt;span style="color:#75715e">#0 0x00000000004003f0 in printf@plt ()&lt;/span>
+&lt;span style="color:#ae81ff">10&lt;/span>
+main &lt;span style="color:#f92672">()&lt;/span> at basic.c:9
+9 &lt;span style="color:#66d9ef">return&lt;/span> 0;
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+0x00000000004004e7 &amp;lt;+0&amp;gt;: push rbp
+0x00000000004004e8 &amp;lt;+1&amp;gt;: mov rbp,rsp
+0x00000000004004eb &amp;lt;+4&amp;gt;: sub rsp,0x10
+0x00000000004004ef &amp;lt;+8&amp;gt;: mov DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>,0xa
+0x00000000004004f6 &amp;lt;+15&amp;gt;: mov eax,DWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x4&lt;span style="color:#f92672">]&lt;/span>
+0x00000000004004f9 &amp;lt;+18&amp;gt;: mov esi,eax
+0x00000000004004fb &amp;lt;+20&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xa2&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4005a4&lt;/span>
+0x0000000000400502 &amp;lt;+27&amp;gt;: mov eax,0x0
+0x0000000000400507 &amp;lt;+32&amp;gt;: call 0x4003f0 &amp;lt;printf@plt&amp;gt;
+&lt;span style="color:#f92672">=&lt;/span>&amp;gt; 0x000000000040050c &amp;lt;+37&amp;gt;: mov eax,0x0
+0x0000000000400511 &amp;lt;+42&amp;gt;: leave
+0x0000000000400512 &amp;lt;+43&amp;gt;: ret
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="bt-backtrace">bt (backtrace)&lt;/h2>
+&lt;p>This command is to show the call stack of the current function.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> bt
+&lt;span style="color:#75715e">#0 0x00000000004003f0 in printf@plt ()&lt;/span>
+&lt;span style="color:#75715e">#1 0x000000000040050c in main () at basic.c:8&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The output above states that the program is currently inside &lt;code>printf&lt;/code>, called from &lt;code>main&lt;/code>.&lt;/p></content></item><item><title>Inspecting</title><link>/notes/basics/inspecting/</link><pubDate>Thu, 07 May 2020 00:00:00 +0000</pubDate><guid>/notes/basics/inspecting/</guid><description>c basic2.c // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; typedef struct my_struct { char a; short b; int c; double d; char e[20]; long long f; } my_struct; int main() { my_struct m = { .a = &amp;#39;6&amp;#39;, .b = 56, .c = 1337, .d = 3.1415, .e = {&amp;#39;h&amp;#39;, &amp;#39;e&amp;#39;, &amp;#39;l&amp;#39;, &amp;#39;l&amp;#39;, &amp;#39;o&amp;#39;, &amp;#39; &amp;#39;, &amp;#39;f&amp;#39;, &amp;#39;r&amp;#39;, &amp;#39;i&amp;#39;, &amp;#39;e&amp;#39;, &amp;#39;n&amp;#39;, &amp;#39;d&amp;#39;, &amp;#39;\0&amp;#39;}, .f = 0x1337133713371337 }; printf(&amp;#34;%p\n&amp;#34;, &amp;amp;m); return 0; } In this example, we set a breakpoint at the instruction after the printf call, and inspect the memory contents of m.</description><content>
+&lt;div class="collapsable-code">
+&lt;input id="1" type="checkbox" />
+&lt;label for="1">
+&lt;span class="collapsable-code__language">c&lt;/span>
+&lt;span class="collapsable-code__title">basic2.c&lt;/span>
+&lt;span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide">&lt;/span>
+&lt;/label>
+&lt;pre class="language-c" >&lt;code>
+// gcc -g basic.c -o basic -no-pie
+#include &amp;lt;stdio.h&amp;gt;
+typedef struct my_struct {
+char a;
+short b;
+int c;
+double d;
+char e[20];
+long long f;
+} my_struct;
+int main()
+{
+my_struct m = {
+.a = &amp;#39;6&amp;#39;,
+.b = 56,
+.c = 1337,
+.d = 3.1415,
+.e = {&amp;#39;h&amp;#39;, &amp;#39;e&amp;#39;, &amp;#39;l&amp;#39;, &amp;#39;l&amp;#39;, &amp;#39;o&amp;#39;, &amp;#39; &amp;#39;, &amp;#39;f&amp;#39;, &amp;#39;r&amp;#39;, &amp;#39;i&amp;#39;, &amp;#39;e&amp;#39;, &amp;#39;n&amp;#39;, &amp;#39;d&amp;#39;, &amp;#39;\0&amp;#39;},
+.f = 0x1337133713371337
+};
+printf(&amp;#34;%p\n&amp;#34;, &amp;amp;m);
+return 0;
+}
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>In this example, we set a breakpoint at the instruction after the &lt;code>printf&lt;/code> call, and inspect the memory contents of &lt;code>m&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> disas main
+Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span style="color:#66d9ef">function&lt;/span> main:
+...
+0x00000000004005fb &amp;lt;+164&amp;gt;: lea rdi,&lt;span style="color:#f92672">[&lt;/span>rip+0xb6&lt;span style="color:#f92672">]&lt;/span> &lt;span style="color:#75715e"># 0x4006b8&lt;/span>
+0x0000000000400602 &amp;lt;+171&amp;gt;: mov eax,0x0
+0x0000000000400607 &amp;lt;+176&amp;gt;: call 0x400460 &amp;lt;printf@plt&amp;gt;
+0x000000000040060c &amp;lt;+181&amp;gt;: mov eax,0x0 &lt;span style="color:#75715e"># break here&lt;/span>
+0x0000000000400611 &amp;lt;+186&amp;gt;: mov rdx,QWORD PTR &lt;span style="color:#f92672">[&lt;/span>rbp-0x8&lt;span style="color:#f92672">]&lt;/span>
+...
+End of assembler dump.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> break *0x40060c
+Breakpoint &lt;span style="color:#ae81ff">1&lt;/span> at 0x40060c: file basic2.c, line 25.
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> r
+Starting program: /tmp/basic2
+0x7fffffffe3c0
+Breakpoint 1, main &lt;span style="color:#f92672">()&lt;/span> at basic2.c:25
+25 &lt;span style="color:#66d9ef">return&lt;/span> 0;
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>As seen in the program output after running &lt;code>r&lt;/code>, &lt;code>m&lt;/code> is stored in &lt;code>0x7fffffffe3c0&lt;/code>.&lt;/p>
+&lt;h2 id="info-reg">info reg&lt;/h2>
+&lt;p>This command prints the names and values of all registers, except floating-point and vector registers (like &lt;code>st&lt;/code>, &lt;code>xmm&lt;/code>, &lt;code>ymm&lt;/code>).&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> info registers
+rax 0xf &lt;span style="color:#ae81ff">15&lt;/span>
+rbx 0x0 &lt;span style="color:#ae81ff">0&lt;/span>
+rcx 0x0 &lt;span style="color:#ae81ff">0&lt;/span>
+rdx 0x0 &lt;span style="color:#ae81ff">0&lt;/span>
+rsi 0x602260 &lt;span style="color:#ae81ff">6300256&lt;/span>
+rdi 0x1 &lt;span style="color:#ae81ff">1&lt;/span>
+rbp 0x7fffffffe400 0x7fffffffe400
+rsp 0x7fffffffe3c0 0x7fffffffe3c0
+r8 0x0 &lt;span style="color:#ae81ff">0&lt;/span>
+r9 0x0 &lt;span style="color:#ae81ff">0&lt;/span>
+r10 0x602010 &lt;span style="color:#ae81ff">6299664&lt;/span>
+r11 0x246 &lt;span style="color:#ae81ff">582&lt;/span>
+r12 0x400470 &lt;span style="color:#ae81ff">4195440&lt;/span>
+r13 0x7fffffffe4e0 &lt;span style="color:#ae81ff">140737488348384&lt;/span>
+r14 0x0 &lt;span style="color:#ae81ff">0&lt;/span>
+r15 0x0 &lt;span style="color:#ae81ff">0&lt;/span>
+rip 0x40060c 0x40060c &amp;lt;main+181&amp;gt;
+eflags 0x206 &lt;span style="color:#f92672">[&lt;/span> PF IF &lt;span style="color:#f92672">]&lt;/span>
+cs 0x33 &lt;span style="color:#ae81ff">51&lt;/span>
+ss 0x2b &lt;span style="color:#ae81ff">43&lt;/span>
+ds 0x0 &lt;span style="color:#ae81ff">0&lt;/span>
+es 0x0 &lt;span style="color:#ae81ff">0&lt;/span>
+fs 0x0 &lt;span style="color:#ae81ff">0&lt;/span>
+gs 0x0 &lt;span style="color:#ae81ff">0&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>To print &lt;strong>every&lt;/strong> register, call &lt;code>info all-reg&lt;/code>. However, it is not very practical to do so.&lt;/p>
+&lt;div class="collapsable-code">
+&lt;input id="2" type="checkbox" checked />
+&lt;label for="2">
+&lt;span class="collapsable-code__language">gdb&lt;/span>
+&lt;span class="collapsable-code__title">info-all-reg&lt;/span>
+&lt;span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide">&lt;/span>
+&lt;/label>
+&lt;pre class="language-gdb" >&lt;code>
+(gdb) info all-reg
+rax 0xf 15
+rbx 0x0 0
+rcx 0x0 0
+rdx 0x0 0
+rsi 0x602260 6300256
+rdi 0x1 1
+rbp 0x7fffffffe400 0x7fffffffe400
+rsp 0x7fffffffe3c0 0x7fffffffe3c0
+r8 0x0 0
+r9 0x0 0
+r10 0x602010 6299664
+r11 0x246 582
+r12 0x400470 4195440
+r13 0x7fffffffe4e0 140737488348384
+r14 0x0 0
+r15 0x0 0
+rip 0x40060c 0x40060c &amp;lt;main&amp;#43;181&amp;gt;
+eflags 0x206 [ PF IF ]
+cs 0x33 51
+ss 0x2b 43
+ds 0x0 0
+es 0x0 0
+fs 0x0 0
+gs 0x0 0
+st0 0 (raw 0x00000000000000000000)
+st1 0 (raw 0x00000000000000000000)
+st2 0 (raw 0x00000000000000000000)
+st3 0 (raw 0x00000000000000000000)
+st4 0 (raw 0x00000000000000000000)
+st5 0 (raw 0x00000000000000000000)
+st6 0 (raw 0x00000000000000000000)
+st7 0 (raw 0x00000000000000000000)
+fctrl 0x37f 895
+fstat 0x0 0
+ftag 0xffff 65535
+fiseg 0x0 0
+fioff 0x0 0
+foseg 0x0 0
+fooff 0x0 0
+fop 0x0 0
+mxcsr 0x1f80 [ IM DM ZM OM UM PM ]
+ymm0 {v8_float = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, v4_double = {0x0, 0x0, 0x0, 0x0}, v32_int8 = {0x25 &amp;lt;repeats 16 times&amp;gt;, 0x0 &amp;lt;repeats 16 times&amp;gt;},
+---Type &amp;lt;return&amp;gt; to continue, or q &amp;lt;return&amp;gt; to quit---
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;h2 id="pformat-print">p/[format] (print)&lt;/h2>
+&lt;p>This command can be used to print values in different representations, register contents, or evaluate arithmetic expressions.&lt;/p>
+&lt;h3 id="p-value">p &amp;lt;value&amp;gt;&lt;/h3>
+&lt;p>By default, the given value is printed in its decimal form.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p 0x1337
+$1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">4919&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>p&lt;/code> can be given the following format modifiers, to print the value in different representations:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>p/t&lt;/code> binary&lt;/li>
+&lt;li>&lt;code>p/o&lt;/code> octal&lt;/li>
+&lt;li>&lt;code>p/d&lt;/code> decimal&lt;/li>
+&lt;li>&lt;code>p/u&lt;/code> unsigned decimal&lt;/li>
+&lt;li>&lt;code>p/x&lt;/code> hex&lt;/li>
+&lt;li>&lt;code>p/c&lt;/code> char&lt;/li>
+&lt;li>&lt;code>p/f&lt;/code> float&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p/t 0x41
+$2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1000001&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p/o 0x41
+$3 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0101&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p/d 0x41
+$4 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">65&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p/x 0x41
+$5 &lt;span style="color:#f92672">=&lt;/span> 0x41
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p/c 0x41
+$6 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">65&lt;/span> &lt;span style="color:#e6db74">&amp;#39;A&amp;#39;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="p-reg">p $&amp;lt;reg&amp;gt;&lt;/h3>
+&lt;p>This command prints individual registers. E.g. &lt;code>p $rax&lt;/code> to print the value of the &lt;code>rax&lt;/code> register.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p $rax
+$7 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">15&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Similarly, the various format modifiers above can be used.&lt;/p>
+&lt;h3 id="p-expression">p &amp;lt;expression&amp;gt;&lt;/h3>
+&lt;p>This command is also very handy for evaluating expressions right inside GDB.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p/x &lt;span style="color:#f92672">(&lt;/span>$rax*10+0x41&lt;span style="color:#f92672">)&lt;/span>&lt;span style="color:#e6db74">&amp;lt;&amp;lt;1
+&lt;/span>&lt;span style="color:#e6db74">$8 = 0x1&lt;/span>ae
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p/x $8-0xe
+$9 &lt;span style="color:#f92672">=&lt;/span> 0x1a0
+&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="p-symbol">p &amp;lt;symbol&amp;gt;&lt;/h3>
+&lt;p>If the binary is not stripped, this command can print the location of a given symbol.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p main
+$10 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">{&lt;/span>int &lt;span style="color:#f92672">()}&lt;/span> 0x400557 &amp;lt;main&amp;gt;
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p free
+$11 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#f92672">{&lt;/span>void &lt;span style="color:#f92672">(&lt;/span>void *&lt;span style="color:#f92672">)}&lt;/span> 0x7ffff7df0620 &amp;lt;free&amp;gt;
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="xlengthsizeformat-examine">x/[length][size][format] (examine)&lt;/h2>
+&lt;p>This command displays the memory contents at a given address. More &lt;strong>format&lt;/strong> modifiers are available:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>x/o&lt;/code> octal&lt;/li>
+&lt;li>&lt;code>x/x&lt;/code> hexadecimal&lt;/li>
+&lt;li>&lt;strong>&lt;code>x/d&lt;/code> decimal - default&lt;/strong>&lt;/li>
+&lt;li>&lt;code>x/u&lt;/code> unsigned decimal&lt;/li>
+&lt;li>&lt;code>x/t&lt;/code> binary&lt;/li>
+&lt;li>&lt;code>x/f&lt;/code> floating point&lt;/li>
+&lt;li>&lt;code>x/a&lt;/code> address&lt;/li>
+&lt;li>&lt;code>x/c&lt;/code> char&lt;/li>
+&lt;li>&lt;code>x/s&lt;/code> string&lt;/li>
+&lt;li>&lt;code>x/i&lt;/code> instruction&lt;/li>
+&lt;/ul>
+&lt;p>But this is usually not enough. The following size modifiers can be used to specify the &lt;strong>size&lt;/strong> of the value in memory:&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>x/b&lt;/code> byte&lt;/li>
+&lt;li>&lt;code>x/h&lt;/code> halfwords (2 bytes)&lt;/li>
+&lt;li>&lt;strong>&lt;code>x/w&lt;/code> words (4 bytes) - default&lt;/strong>&lt;/li>
+&lt;li>&lt;code>x/g&lt;/code> giant words (8 bytes)&lt;/li>
+&lt;/ul>
+&lt;p>Lastly, a &lt;strong>length&lt;/strong> modifier can be used to specify the number of values to display. If not given, it is 1 by default.&lt;/p>
+&lt;p>These 3 modifiers can be combined together, e.g.&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>x/4bx 0x7fffffffe3c0&lt;/code>&lt;/li>
+&lt;li>&lt;code>x/2gd 0x7fffffffe3c8&lt;/code>&lt;/li>
+&lt;li>&lt;code>x/s 0x7fffffffe3e0&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;div class="collapsable-code">
+&lt;input id="3" type="checkbox" checked />
+&lt;label for="3">
+&lt;span class="collapsable-code__language">c&lt;/span>
+&lt;span class="collapsable-code__title">my_struct&lt;/span>
+&lt;span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide">&lt;/span>
+&lt;/label>
+&lt;pre class="language-c" >&lt;code>
+// gcc -g basic.c -o basic -no-pie
+#include &amp;lt;stdio.h&amp;gt;
+typedef struct my_struct {
+char a;
+short b;
+int c;
+double d;
+char e[20];
+long long f;
+} my_struct;
+my_struct m = {
+.a = &amp;#39;6&amp;#39;,
+.b = 56,
+.c = 1337,
+.d = 3.1415,
+.e = {&amp;#39;h&amp;#39;, &amp;#39;e&amp;#39;, &amp;#39;l&amp;#39;, &amp;#39;l&amp;#39;, &amp;#39;o&amp;#39;, &amp;#39; &amp;#39;, &amp;#39;f&amp;#39;, &amp;#39;r&amp;#39;, &amp;#39;i&amp;#39;, &amp;#39;e&amp;#39;, &amp;#39;n&amp;#39;, &amp;#39;d&amp;#39;, &amp;#39;\0&amp;#39;},
+.f = 0x1337133713371337
+};
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/c &amp;amp;m.a
+0x7fffffffe3c0: &lt;span style="color:#ae81ff">54&lt;/span> &lt;span style="color:#e6db74">&amp;#39;6&amp;#39;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/hd &amp;amp;m.b
+0x7fffffffe3c2: &lt;span style="color:#ae81ff">56&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/w &amp;amp;m.c
+0x7fffffffe3c4: &lt;span style="color:#ae81ff">1337&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/gf &amp;amp;m.d
+0x7fffffffe3c8: 3.1415000000000002
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/s &amp;amp;m.e
+0x7fffffffe3d0: &lt;span style="color:#e6db74">&amp;#34;hello friend&amp;#34;&lt;/span>
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/20bx &amp;amp;m.e
+0x7fffffffe3d0: 0x68 0x65 0x6c 0x6c 0x6f 0x20 0x66 0x72
+0x7fffffffe3d8: 0x69 0x65 0x6e 0x64 0x00 0x00 0x00 0x00
+0x7fffffffe3e0: 0x00 0x00 0x00 0x00
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/gx &amp;amp;m.f
+0x7fffffffe3e8: 0x1337133713371337
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>In the example above, it is convenient to directly reference the variable (&lt;code>m&lt;/code>) and its elements (&lt;code>m.a&lt;/code>, &lt;code>m.b&lt;/code>). Remember to add &lt;code>&amp;amp;&lt;/code> before the symbol (&lt;code>&amp;amp;m.a&lt;/code>) because &lt;code>x&lt;/code> is expecting an address.&lt;/p>
+&lt;p>However, this only works when the binary is compiled with debugging information (with the &lt;code>-g&lt;/code> flag).&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-bash" data-lang="bash">❯ gcc basic2.c -o basic2 -no-pie
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/c &amp;amp;m.a
+No symbol &lt;span style="color:#e6db74">&amp;#34;m&amp;#34;&lt;/span> in current context.
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Anyways, this is common in reverse engineering. Earlier, &lt;code>printf&lt;/code> printed the address of &lt;code>m&lt;/code> which is located at &lt;code>0x7fffffffe3c0&lt;/code>. We can call &lt;code>x&lt;/code> on this address instead. However, it is more troublesome now to access each element in the struct, as we need to manually calculate the offset of each element.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/20wx 0x7fffffffe3c0
+0x7fffffffe3c0: 0x00380036 0x00000539 0xc083126f 0x400921ca
+0x7fffffffe3d0: 0x6c6c6568 0x7266206f 0x646e6569 0x00000000
+0x7fffffffe3e0: 0x00000000 0x00000000 0x13371337 0x13371337
+0x7fffffffe3f0: 0xffffe4e0 0x00007fff 0x7ec63500 0x104e20db
+0x7fffffffe400: 0x00400630 0x00000000 0xf7a05b97 0x00007fff
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>In the example above, as I do not yet know the size of a struct, I chose a reasonably big number (20) of words to be displayed. I can see that the struct ends at &lt;code>0x7fffffffe3ef&lt;/code> because it contains the last element of &lt;code>m&lt;/code> (&lt;code>0x1337133713371337&lt;/code>).&lt;/p>
+&lt;p>I can also identify the location of the other elements in the struct from the output above.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/c 0x7fffffffe3c0
+0x7fffffffe3c0: &lt;span style="color:#ae81ff">54&lt;/span> &lt;span style="color:#e6db74">&amp;#39;6&amp;#39;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/hd 0x7fffffffe3c0+2
+0x7fffffffe3c2: &lt;span style="color:#ae81ff">56&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/wd 0x7fffffffe3c0+4
+0x7fffffffe3c4: &lt;span style="color:#ae81ff">1337&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/gf 0x7fffffffe3c0+8
+0x7fffffffe3c8: 3.1415000000000002
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/s 0x7fffffffe3c0+16
+0x7fffffffe3d0: &lt;span style="color:#e6db74">&amp;#34;hello friend&amp;#34;&lt;/span>
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/20bx 0x7fffffffe3c0+16
+0x7fffffffe3d0: 0x68 0x65 0x6c 0x6c 0x6f 0x20 0x66 0x72
+0x7fffffffe3d8: 0x69 0x65 0x6e 0x64 0x00 0x00 0x00 0x00
+0x7fffffffe3e0: 0x00 0x00 0x00 0x00
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/gx 0x7fffffffe3c0+40
+0x7fffffffe3e8: 0x1337133713371337
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="set-typeaddressvalue">set *(&amp;lt;type&amp;gt;*)(&amp;lt;address&amp;gt;)=&amp;lt;value&amp;gt;&lt;/h2>
+&lt;p>This command modifies the contents of memory. The syntax might be daunting, but it is quite intuitive, same as C code for setting values of pointers.&lt;/p>
+&lt;ol>
+&lt;li>Cast &lt;code>address&lt;/code> as &lt;code>type*&lt;/code>&lt;/li>
+&lt;li>Dereference &lt;code>address&lt;/code>&lt;/li>
+&lt;li>Set the value&lt;/li>
+&lt;/ol>
+&lt;p>For example, &lt;code>set *(char*)(0x7fffffffe3c0+16)=109&lt;/code>:&lt;/p>
+&lt;ol>
+&lt;li>Cast &lt;code>0x7fffffffe3c0+16&lt;/code> as a &lt;code>char*&lt;/code>&lt;/li>
+&lt;li>Dereference &lt;code>0x7fffffffe3c0+16&lt;/code> to point to a &lt;code>char&lt;/code>&lt;/li>
+&lt;li>Set the value of the &lt;code>char&lt;/code> as &lt;code>109&lt;/code>&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> set *&lt;span style="color:#f92672">(&lt;/span>char*&lt;span style="color:#f92672">)(&lt;/span>0x7fffffffe3c0+16&lt;span style="color:#f92672">)=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;m&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/s 0x7fffffffe3c0+16
+0x7fffffffe3d0: &lt;span style="color:#e6db74">&amp;#34;mello friend&amp;#34;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Without specifying a type, GDB defaults to &lt;code>int&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> set *&lt;span style="color:#f92672">(&lt;/span>0x7fffffffe3c0+4&lt;span style="color:#f92672">)=&lt;/span>0xcafebeef
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/12wx 0x7fffffffe3c0
+0x7fffffffe3c0: 0x00380036 0xcafebeef 0xc083126f 0x400921ca
+0x7fffffffe3d0: 0x6c6c6568 0x7266206f 0x646e6569 0x00000000
+0x7fffffffe3e0: 0x0000006d 0x00000000 0x13371337 0x13371337
+&lt;/code>&lt;/pre>&lt;/div></content></item></channel></rss>

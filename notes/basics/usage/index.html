@@ -1,0 +1,83 @@
+<!doctype html><html lang=en><head><title>Usage :: GDB Notes</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="c basic.c    // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; }    In these examples, compile the code above with the -g flag to enable debugging information, and -no-pie to disable compiling as a position-independent executable (which makes debugging less straightforward).
+ start gdb Start using GDB on a binary with gdb -q &amp;lt;program&amp;gt;."><meta name=keywords content><meta name=robots content="noodp"><link rel=canonical href=/notes/basics/usage/><link rel=stylesheet href=/assets/style.css><link rel=stylesheet href=/assets/blue.css><link rel=apple-touch-icon href=/img/apple-touch-icon-192x192.png><link rel="shortcut icon" href=/img/favicon/blue.png><meta name=twitter:card content="summary"><meta name=twitter:site content><meta name=twitter:creator content><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="og:title" content="Usage"><meta property="og:description" content="c basic.c    // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; }    In these examples, compile the code above with the -g flag to enable debugging information, and -no-pie to disable compiling as a position-independent executable (which makes debugging less straightforward).
+ start gdb Start using GDB on a binary with gdb -q &amp;lt;program&amp;gt;."><meta property="og:url" content="/notes/basics/usage/"><meta property="og:site_name" content="GDB Notes"><meta property="og:image" content="/img/favicon/blue.png"><meta property="og:image:width" content="2048"><meta property="og:image:height" content="1024"><meta property="article:section" content="Basics"><meta property="article:published_time" content="2020-05-07 00:00:00 +0000 UTC"></head><body class=blue><div class="container center headings--one-size"><header class=header><div class=header__inner><div class=header__logo><a href=/><div class=logo>GDB Notes</div></a></div><div class=menu-trigger>menu</div></div><nav class=menu><ul class="menu__inner menu__inner--desktop"><li><a href=/about>About</a></li><li><a href=/showcase>Showcase</a></li></ul><ul class="menu__inner menu__inner--mobile"><li><a href=/about>About</a></li><li><a href=/showcase>Showcase</a></li></ul></nav></header><div class=content><div class=post><h1 class=post-title><a href=/notes/basics/usage/>Usage</a></h1><div class=post-meta><span class=post-date>2020-05-07</span></div><span class=post-tags>#<a href=/tags/basics/>basics</a>&nbsp;</span><div class=post-content><div><div class=collapsable-code><input id=1 type=checkbox>
+<label for=1><span class=collapsable-code__language>c</span>
+<span class=collapsable-code__title>basic.c</span>
+<span class=collapsable-code__toggle data-label-expand=Show data-label-collapse=Hide></span></label><pre class=language-c><code>
+// gcc -g basic.c -o basic -no-pie
+#include &lt;stdio.h&gt;
+
+int main()
+{
+   int a = 10;
+
+   printf(&#34;%d\n&#34;, a);
+   return 0;
+}
+</code></pre></div><blockquote><p>In these examples, compile the code above with the <code>-g</code> flag to enable debugging information, and <code>-no-pie</code> to disable compiling as a position-independent executable (which makes debugging less straightforward).</p></blockquote><h2 id=start-gdb>start gdb<a href=#start-gdb class=hanchor arialabel=Anchor>&#8983;</a></h2><p>Start using GDB on a binary with <code>gdb -q &lt;program></code>. The <code>-q</code> option tells GDB to start in quiet mode. Try running GDB without it.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>❯ gdb -q ./basic
+Reading symbols from ./basic...done.
+<span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span>
+</code></pre></div><h2 id=info-functions>info functions<a href=#info-functions class=hanchor arialabel=Anchor>&#8983;</a></h2><p>Normally when debugging or reverse engineering, the list of functions is already known, either from the source code or from a disassembler like IDA, Ghidra or Rizin/R2.
+Nonetheless, this is a command worth knowing.</p><p><code>info functions</code> lists the functions in the binary.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> info functions
+All defined functions:
+
+File basic.c:
+int main<span style=color:#f92672>()</span>;
+
+Non-debugging symbols:
+0x00000000004003c8  _init
+0x00000000004003f0  printf@plt
+0x0000000000400400  _start
+0x0000000000400430  _dl_relocate_static_pie
+0x0000000000400440  deregister_tm_clones
+0x0000000000400470  register_tm_clones
+0x00000000004004b0  __do_global_dtors_aux
+0x00000000004004e0  frame_dummy
+0x0000000000400520  __libc_csu_init
+0x0000000000400590  __libc_csu_fini
+0x0000000000400594  _fini
+</code></pre></div><h2 id=list-function>list &lt;function><a href=#list-function class=hanchor arialabel=Anchor>&#8983;</a></h2><p>If a binary is compiled with the <code>-g</code> flag, the <code>list</code> command can be used to view the source of the file. For example:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> list main
+1	// gcc -g basic.c -o basic -no-pie
+2	<span style=color:#75715e>#include &lt;stdio.h&gt;</span>
+<span style=color:#ae81ff>3</span>
+4	int main<span style=color:#f92672>()</span>
+5	<span style=color:#f92672>{</span>
+6	   int a <span style=color:#f92672>=</span> 10;
+<span style=color:#ae81ff>7</span>
+8	   printf<span style=color:#f92672>(</span><span style=color:#e6db74>&#34;%d\n&#34;</span>, a<span style=color:#f92672>)</span>;
+9	   <span style=color:#66d9ef>return</span> 0;
+10	<span style=color:#f92672>}</span>
+</code></pre></div><h2 id=disas-function>disas &lt;function><a href=#disas-function class=hanchor arialabel=Anchor>&#8983;</a></h2><p>The <code>disas</code> command can be used to view the disassembly of the program.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> disas main
+Dump of assembler code <span style=color:#66d9ef>for</span> <span style=color:#66d9ef>function</span> main:
+   0x000000000000064a &lt;+0&gt;:	push   %rbp
+   0x000000000000064b &lt;+1&gt;:	mov    %rsp,%rbp
+   0x000000000000064e &lt;+4&gt;:	sub    $0x10,%rsp
+   0x0000000000000652 &lt;+8&gt;:	movl   $0xa,-0x4<span style=color:#f92672>(</span>%rbp<span style=color:#f92672>)</span>
+   0x0000000000000659 &lt;+15&gt;:	mov    -0x4<span style=color:#f92672>(</span>%rbp<span style=color:#f92672>)</span>,%eax
+   0x000000000000065c &lt;+18&gt;:	mov    %eax,%esi
+   0x000000000000065e &lt;+20&gt;:	lea    0x9f<span style=color:#f92672>(</span>%rip<span style=color:#f92672>)</span>,%rdi        <span style=color:#75715e># 0x704</span>
+   0x0000000000000665 &lt;+27&gt;:	mov    $0x0,%eax
+   0x000000000000066a &lt;+32&gt;:	callq  0x520 &lt;printf@plt&gt;
+   0x000000000000066f &lt;+37&gt;:	mov    $0x0,%eax
+   0x0000000000000674 &lt;+42&gt;:	leaveq
+   0x0000000000000675 &lt;+43&gt;:	retq
+End of assembler dump.
+</code></pre></div><h3 id=set-disassembly-flavor-intel>set disassembly-flavor intel<a href=#set-disassembly-flavor-intel class=hanchor arialabel=Anchor>&#8983;</a></h3><p>By default, GDB displays the disassembly output in the AT&T syntax. To use the more familiar-looking Intel syntax, call <code>set disassembly-flavor intel</code>.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> set disassembly-flavor intel
+<span style=color:#f92672>(</span>gdb<span style=color:#f92672>)</span> disas main
+Dump of assembler code <span style=color:#66d9ef>for</span> <span style=color:#66d9ef>function</span> main:
+   0x00000000004004e7 &lt;+0&gt;:	push   rbp
+   0x00000000004004e8 &lt;+1&gt;:	mov    rbp,rsp
+   0x00000000004004eb &lt;+4&gt;:	sub    rsp,0x10
+   0x00000000004004ef &lt;+8&gt;:	mov    DWORD PTR <span style=color:#f92672>[</span>rbp-0x4<span style=color:#f92672>]</span>,0xa
+   0x00000000004004f6 &lt;+15&gt;:	mov    eax,DWORD PTR <span style=color:#f92672>[</span>rbp-0x4<span style=color:#f92672>]</span>
+   0x00000000004004f9 &lt;+18&gt;:	mov    esi,eax
+   0x00000000004004fb &lt;+20&gt;:	lea    rdi,<span style=color:#f92672>[</span>rip+0xa2<span style=color:#f92672>]</span>        <span style=color:#75715e># 0x4005a4</span>
+   0x0000000000400502 &lt;+27&gt;:	mov    eax,0x0
+   0x0000000000400507 &lt;+32&gt;:	call   0x4003f0 &lt;printf@plt&gt;
+   0x000000000040050c &lt;+37&gt;:	mov    eax,0x0
+   0x0000000000400511 &lt;+42&gt;:	leave
+   0x0000000000400512 &lt;+43&gt;:	ret
+End of assembler dump.
+</code></pre></div></div></div><div class=pagination><div class=pagination__title><span class=pagination__title-h>Read other posts</span><hr></div><div class=pagination__buttons><span class="button next"><a href=/notes/basics/breakpoints/><span class=button__text>Breakpoints</span>
+<span class=button__icon>→</span></a></span></div></div></div></div><footer class=footer><div class=footer__inner><div class=copyright><span>© 2021 Powered by <a href=http://gohugo.io>Hugo</a></span>
+<span>:: Theme made by <a href=https://twitter.com/panr>panr</a></span></div></div></footer><script src=/assets/main.js></script><script src=/assets/prism.js></script></div></body></html>
