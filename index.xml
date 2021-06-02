@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>GDB Notes</title><link>/</link><description>Recent content on GDB Notes</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 07 May 2020 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml"/><item><title>Usage</title><link>/notes/basics/usage/</link><pubDate>Thu, 07 May 2020 00:00:00 +0000</pubDate><guid>/notes/basics/usage/</guid><description>c basic.c // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; } In these examples, compile the code above with the -g flag to enable debugging information, and -no-pie to disable compiling as a position-independent executable (which makes debugging less straightforward).
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>GDB Notes</title><link>/</link><description>Recent content on GDB Notes</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 08 May 2020 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml"/><item><title>Usage</title><link>/notes/basics/basics/usage/</link><pubDate>Thu, 07 May 2020 00:00:00 +0000</pubDate><guid>/notes/basics/basics/usage/</guid><description>c basic.c // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; } In these examples, compile the code above with the -g flag to enable debugging information, and -no-pie to disable compiling as a position-independent executable (which makes debugging less straightforward).
 start gdb Start using GDB on a binary with gdb -q &amp;lt;program&amp;gt;.</description><content>
 &lt;div class="collapsable-code">
 &lt;input id="1" type="checkbox" />
@@ -94,7 +94,7 @@ Dump of assembler code &lt;span style="color:#66d9ef">for&lt;/span> &lt;span sty
 0x0000000000400511 &amp;lt;+42&amp;gt;: leave
 0x0000000000400512 &amp;lt;+43&amp;gt;: ret
 End of assembler dump.
-&lt;/code>&lt;/pre>&lt;/div></content></item><item><title>Breakpoints</title><link>/notes/basics/breakpoints/</link><pubDate>Thu, 07 May 2020 00:00:00 +0000</pubDate><guid>/notes/basics/breakpoints/</guid><description>c basic.c // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; } break To inspect the memory contents of the running process, we need to set a breakpoint.
+&lt;/code>&lt;/pre>&lt;/div></content></item><item><title>Breakpoints</title><link>/notes/basics/basics/breakpoints/</link><pubDate>Thu, 07 May 2020 00:00:00 +0000</pubDate><guid>/notes/basics/basics/breakpoints/</guid><description>c basic.c // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; } break To inspect the memory contents of the running process, we need to set a breakpoint.
 break *&amp;lt;function&amp;gt; To set a breakpoint at the start of main, call break *main.
 (gdb) break *main Breakpoint 1 at 0x4004e7: file basic.c, line 5. This command only works when the binary is unstripped.</description><content>
 &lt;div class="collapsable-code">
@@ -207,7 +207,7 @@ Continuing.
 &lt;span style="color:#ae81ff">10&lt;/span>
 Breakpoint 2, main &lt;span style="color:#f92672">()&lt;/span> at basic.c:9
 9 &lt;span style="color:#66d9ef">return&lt;/span> 0;
-&lt;/code>&lt;/pre>&lt;/div></content></item><item><title>Stepping</title><link>/notes/basics/stepping/</link><pubDate>Thu, 07 May 2020 00:00:00 +0000</pubDate><guid>/notes/basics/stepping/</guid><description>c basic.c // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; } To step through instructions in the debugger, we need to set a breakpoint, then run the program.
+&lt;/code>&lt;/pre>&lt;/div></content></item><item><title>Stepping</title><link>/notes/basics/basics/stepping/</link><pubDate>Thu, 07 May 2020 00:00:00 +0000</pubDate><guid>/notes/basics/basics/stepping/</guid><description>c basic.c // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; int main() { int a = 10; printf(&amp;#34;%d\n&amp;#34;, a); return 0; } To step through instructions in the debugger, we need to set a breakpoint, then run the program.
 (gdb) break *main Breakpoint 1 at 0x4004e7: file basic.c, line 5. (gdb) r Starting program: /tmp/basic Breakpoint 1, main () at basic.c:5 5 { Run disas to know where we currently are in the program.</description><content>
 &lt;div class="collapsable-code">
 &lt;input id="1" type="checkbox" checked />
@@ -525,7 +525,7 @@ End of assembler dump.
 &lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> bt
 &lt;span style="color:#75715e">#0 0x00000000004003f0 in printf@plt ()&lt;/span>
 &lt;span style="color:#75715e">#1 0x000000000040050c in main () at basic.c:8&lt;/span>
-&lt;/code>&lt;/pre>&lt;/div>&lt;p>The output above states that the program is currently inside &lt;code>printf&lt;/code>, called from &lt;code>main&lt;/code>.&lt;/p></content></item><item><title>Inspecting</title><link>/notes/basics/inspecting/</link><pubDate>Thu, 07 May 2020 00:00:00 +0000</pubDate><guid>/notes/basics/inspecting/</guid><description>c basic2.c // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; typedef struct my_struct { char a; short b; int c; double d; char e[20]; long long f; } my_struct; int main() { my_struct m = { .a = &amp;#39;6&amp;#39;, .b = 56, .c = 1337, .d = 3.1415, .e = {&amp;#39;h&amp;#39;, &amp;#39;e&amp;#39;, &amp;#39;l&amp;#39;, &amp;#39;l&amp;#39;, &amp;#39;o&amp;#39;, &amp;#39; &amp;#39;, &amp;#39;f&amp;#39;, &amp;#39;r&amp;#39;, &amp;#39;i&amp;#39;, &amp;#39;e&amp;#39;, &amp;#39;n&amp;#39;, &amp;#39;d&amp;#39;, &amp;#39;\0&amp;#39;}, .f = 0x1337133713371337 }; printf(&amp;#34;%p\n&amp;#34;, &amp;amp;m); return 0; } In this example, we set a breakpoint at the instruction after the printf call, and inspect the memory contents of m.</description><content>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The output above states that the program is currently inside &lt;code>printf&lt;/code>, called from &lt;code>main&lt;/code>.&lt;/p></content></item><item><title>Inspecting</title><link>/notes/basics/basics/inspecting/</link><pubDate>Thu, 07 May 2020 00:00:00 +0000</pubDate><guid>/notes/basics/basics/inspecting/</guid><description>c basic2.c // gcc -g basic.c -o basic -no-pie #include &amp;lt;stdio.h&amp;gt; typedef struct my_struct { char a; short b; int c; double d; char e[20]; long long f; } my_struct; int main() { my_struct m = { .a = &amp;#39;6&amp;#39;, .b = 56, .c = 1337, .d = 3.1415, .e = {&amp;#39;h&amp;#39;, &amp;#39;e&amp;#39;, &amp;#39;l&amp;#39;, &amp;#39;l&amp;#39;, &amp;#39;o&amp;#39;, &amp;#39; &amp;#39;, &amp;#39;f&amp;#39;, &amp;#39;r&amp;#39;, &amp;#39;i&amp;#39;, &amp;#39;e&amp;#39;, &amp;#39;n&amp;#39;, &amp;#39;d&amp;#39;, &amp;#39;\0&amp;#39;}, .f = 0x1337133713371337 }; printf(&amp;#34;%p\n&amp;#34;, &amp;amp;m); return 0; } In this example, we set a breakpoint at the instruction after the printf call, and inspect the memory contents of m.</description><content>
 &lt;div class="collapsable-code">
 &lt;input id="1" type="checkbox" />
 &lt;label for="1">
@@ -827,4 +827,171 @@ No symbol &lt;span style="color:#e6db74">&amp;#34;m&amp;#34;&lt;/span> in curren
 0x7fffffffe3c0: 0x00380036 0xcafebeef 0xc083126f 0x400921ca
 0x7fffffffe3d0: 0x6c6c6568 0x7266206f 0x646e6569 0x00000000
 0x7fffffffe3e0: 0x0000006d 0x00000000 0x13371337 0x13371337
-&lt;/code>&lt;/pre>&lt;/div></content></item></channel></rss>
+&lt;/code>&lt;/pre>&lt;/div></content></item><item><title>Syntax</title><link>/notes/scripting/scripting/syntax/</link><pubDate>Fri, 08 May 2020 00:00:00 +0000</pubDate><guid>/notes/scripting/scripting/syntax/</guid><description>GDB provides a simple yet powerful scripting interface that is very helpful while doing reverse engineering. A GDB script file can contain a collection of commands, used with the following constructs. Usually I call it GDB script, but apparently GDB docs calls them command files.
+source &amp;lt;file&amp;gt; The file name/extension does not matter. A simple GDB script looks like this.
+gdb gdbscript set $sum=0 break *foo commands silent printf &amp;#34;Arg: %d\n&amp;#34;, $rdi set $sum=$sum&amp;#43;$rdi c end printf &amp;#34;Sum: %d\n&amp;#34;, $sum To execute the script, simply call source .</description><content>&lt;p>GDB provides a simple yet powerful scripting interface that is very helpful while doing reverse engineering. A GDB script file can contain a collection of commands, used with the following constructs. Usually I call it &lt;em>GDB script&lt;/em>, but apparently GDB docs calls them &lt;em>command files&lt;/em>.&lt;/p>
+&lt;h2 id="source-file">source &amp;lt;file&amp;gt;&lt;/h2>
+&lt;p>The file name/extension does not matter. A simple GDB script looks like this.&lt;/p>
+&lt;div class="collapsable-code">
+&lt;input id="1" type="checkbox" />
+&lt;label for="1">
+&lt;span class="collapsable-code__language">gdb&lt;/span>
+&lt;span class="collapsable-code__title">gdbscript&lt;/span>
+&lt;span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide">&lt;/span>
+&lt;/label>
+&lt;pre class="language-gdb" >&lt;code>
+set $sum=0
+break *foo
+commands
+silent
+printf &amp;#34;Arg: %d\n&amp;#34;, $rdi
+set $sum=$sum&amp;#43;$rdi
+c
+end
+printf &amp;#34;Sum: %d\n&amp;#34;, $sum
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;p>To execute the script, simply call &lt;code>source ./gdbscript&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> source ./commands2
+Breakpoint &lt;span style="color:#ae81ff">1&lt;/span> at 0x400497: file gdbscript.c, line 5.
+Arg: &lt;span style="color:#ae81ff">1&lt;/span>
+Arg: &lt;span style="color:#ae81ff">2&lt;/span>
+Arg: &lt;span style="color:#ae81ff">100&lt;/span>
+&lt;span style="color:#f92672">[&lt;/span>Inferior &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">(&lt;/span>process 1249&lt;span style="color:#f92672">)&lt;/span> exited normally&lt;span style="color:#f92672">]&lt;/span>
+Sum: &lt;span style="color:#ae81ff">103&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;h2 id="set-variablevalue">set $&amp;lt;variable&amp;gt;=&amp;lt;value&amp;gt;&lt;/h2>
+&lt;p>Variables. Created with this bash-like syntax.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> set $a&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p $a
+$1 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> set $b&lt;span style="color:#f92672">=&lt;/span>$rdi*8
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p $b
+$2 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">8&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> set $c&lt;span style="color:#f92672">=&lt;/span>$a+$b
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> p $c
+$3 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">9&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;blockquote>
+&lt;p>&lt;strong>Remember the &lt;code>$&lt;/code>!&lt;/strong>&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="printf">printf&lt;/h2>
+&lt;p>Better printing than plain &lt;code>p&lt;/code>. (Assuming that you already know how &lt;code>printf&lt;/code> in C works)&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> printf &lt;span style="color:#e6db74">&amp;#34;%d + %d = %d\n&amp;#34;&lt;/span>, $a, $b, $c
+&lt;span style="color:#ae81ff">1&lt;/span> + 8 &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">9&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> set $d&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#39;h&amp;#39;&lt;/span>
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> printf &lt;span style="color:#e6db74">&amp;#34;%c\n&amp;#34;&lt;/span>, $d
+h
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> x/s 0x00007fffffffe778
+0x7fffffffe778: &lt;span style="color:#e6db74">&amp;#34;LANGUAGE=en_US:en&amp;#34;&lt;/span>
+&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> printf &lt;span style="color:#e6db74">&amp;#34;export %s\n&amp;#34;&lt;/span>, 0x00007fffffffe778
+export LANGUAGE&lt;span style="color:#f92672">=&lt;/span>en_US:en
+&lt;/code>&lt;/pre>&lt;/div>&lt;blockquote>
+&lt;p>&lt;strong>Remember to end with a &lt;code>\n&lt;/code>!&lt;/strong>&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="if">if&lt;/h2>
+&lt;p>Conditionals. &lt;code>if-else-end&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#66d9ef">if&lt;/span> $rdi &amp;gt; &lt;span style="color:#ae81ff">10&lt;/span>
+printf &lt;span style="color:#e6db74">&amp;#34;Big: %d\n&amp;#34;&lt;/span>, $rdi
+&lt;span style="color:#66d9ef">else&lt;/span>
+printf &lt;span style="color:#e6db74">&amp;#34;Small: %d\n&amp;#34;&lt;/span>, $rdi
+end
+&lt;/code>&lt;/pre>&lt;/div>&lt;blockquote>
+&lt;p>&lt;code>else if&lt;/code> is not supported!&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="while">while&lt;/h2>
+&lt;p>Loops. GDB scripting interface only supports &lt;code>while&lt;/code> loops.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">set $i&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>
+&lt;span style="color:#66d9ef">while&lt;/span> $i &amp;lt; &lt;span style="color:#ae81ff">3&lt;/span>
+set $i++
+printf &lt;span style="color:#e6db74">&amp;#34;i: %d\n&amp;#34;&lt;/span>, $i
+&lt;span style="color:#75715e"># do stuff&lt;/span>
+end
+&lt;/code>&lt;/pre>&lt;/div>&lt;blockquote>
+&lt;p>Remember to do &lt;code>set $i++&lt;/code>!&lt;/p>
+&lt;/blockquote>
+&lt;h2 id="commands">commands&lt;/h2>
+&lt;p>To define commands when a breakpoint is hit. The &lt;code>silent&lt;/code> command is very helpful to suppress GDB&amp;rsquo;s output when a breakpoint is hit. The &lt;code>commands&lt;/code> block can be ended with &lt;code>cont&lt;/code>/&lt;code>c&lt;/code>, &lt;code>nexti&lt;/code>/&lt;code>ni&lt;/code> or any other command that resumes execution.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">break *main
+commands
+silent
+printf &lt;span style="color:#e6db74">&amp;#34;In main!\n&amp;#34;&lt;/span>
+cont
+end
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>Note that all commands defined after &lt;code>cont&lt;/code>/&lt;code>ni&lt;/code>/&lt;code>si&lt;/code>/etc will be ignored. This is because there might be another breakpoint afterwards, and it will be ambigious for GDB to know which commands to execute.&lt;/p>
+&lt;p>For example, &lt;code>printf &amp;quot;Continued\n&amp;quot;&lt;/code> in the following script will be ignored.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">break *main
+commands
+silent
+printf &lt;span style="color:#e6db74">&amp;#34;In main!\n&amp;#34;&lt;/span>
+cont
+printf &lt;span style="color:#e6db74">&amp;#34;Continued\n&amp;#34;&lt;/span>
+end
+&lt;/code>&lt;/pre>&lt;/div>&lt;blockquote>
+&lt;p>To let the program continue execution after the breakpoint commands, remember to end the &lt;code>commands&lt;/code> block with &lt;code>cont&lt;/code>/&lt;code>c&lt;/code>!&lt;/p>
+&lt;/blockquote>
+&lt;h4 id="potential-mistake">Potential mistake&lt;/h4>
+&lt;p>The following example script does not work (using &lt;strong>demo.c&lt;/strong>). Notice that the &lt;code>commands&lt;/code> block does not end with &lt;code>c&lt;/code>. One might expect the following script to hit the breakpoint 3 times, because of the &lt;code>while&lt;/code> loop that calls &lt;code>c&lt;/code> 3 times. However, it only hits once.&lt;/p>
+&lt;div class="collapsable-code">
+&lt;input id="4" type="checkbox" checked />
+&lt;label for="4">
+&lt;span class="collapsable-code__language">c&lt;/span>
+&lt;span class="collapsable-code__title">demo.c&lt;/span>
+&lt;span class="collapsable-code__toggle" data-label-expand="Show" data-label-collapse="Hide">&lt;/span>
+&lt;/label>
+&lt;pre class="language-c" >&lt;code>
+// gcc -g demo.c -o demo -no-pie
+#include &amp;lt;stdio.h&amp;gt;
+void foo(int a)
+{
+}
+int main()
+{
+foo(1);
+foo(2);
+foo(100);
+return 0;
+}
+&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">set $sum&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>
+break *foo
+commands
+printf &lt;span style="color:#e6db74">&amp;#34;Arg: %d\n&amp;#34;&lt;/span>, $rdi
+set $sum+&lt;span style="color:#f92672">=&lt;/span>$rdi
+end
+r
+set $i&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>
+&lt;span style="color:#66d9ef">while&lt;/span> $i &amp;lt; &lt;span style="color:#ae81ff">3&lt;/span>
+c
+set $i++
+printf &lt;span style="color:#e6db74">&amp;#34;i: %d\n&amp;#34;&lt;/span>, $i
+end
+printf &lt;span style="color:#e6db74">&amp;#34;Sum: %d\n&amp;#34;&lt;/span>, $sum
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> source ./commands
+Breakpoint &lt;span style="color:#ae81ff">1&lt;/span> at 0x400497: file gdbscript.c, line 5.
+Arg: &lt;span style="color:#ae81ff">1&lt;/span>
+i: &lt;span style="color:#ae81ff">1&lt;/span>
+i: &lt;span style="color:#ae81ff">2&lt;/span>
+&lt;span style="color:#f92672">[&lt;/span>Inferior &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">(&lt;/span>process 1157&lt;span style="color:#f92672">)&lt;/span> exited normally&lt;span style="color:#f92672">]&lt;/span>
+i: &lt;span style="color:#ae81ff">3&lt;/span>
+Sum: &lt;span style="color:#ae81ff">1&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>The breakpoint command (&lt;code>printf &amp;quot;Arg: %d\n&amp;quot;, $rdi&lt;/code>) is only executed once, although we can see that the while loop has ran 3 times (as &lt;code>i&lt;/code> is printed from 1 to 3).&lt;/p>
+&lt;p>Now, consider this script without the &lt;code>while&lt;/code> loop, and the &lt;code>commands&lt;/code> block ending with &lt;code>c&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">set $sum&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>
+break *foo
+commands
+silent
+printf &lt;span style="color:#e6db74">&amp;#34;Arg: %d\n&amp;#34;&lt;/span>, $rdi
+set $sum+&lt;span style="color:#f92672">=&lt;/span>$rdi
+c
+end
+r
+printf &lt;span style="color:#e6db74">&amp;#34;Sum: %d\n&amp;#34;&lt;/span>, $sum
+&lt;/code>&lt;/pre>&lt;/div>&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-sh" data-lang="sh">&lt;span style="color:#f92672">(&lt;/span>gdb&lt;span style="color:#f92672">)&lt;/span> source ./commands2
+Breakpoint &lt;span style="color:#ae81ff">1&lt;/span> at 0x400497: file gdbscript.c, line 5.
+Arg: &lt;span style="color:#ae81ff">1&lt;/span>
+Arg: &lt;span style="color:#ae81ff">2&lt;/span>
+Arg: &lt;span style="color:#ae81ff">100&lt;/span>
+&lt;span style="color:#f92672">[&lt;/span>Inferior &lt;span style="color:#ae81ff">1&lt;/span> &lt;span style="color:#f92672">(&lt;/span>process 1249&lt;span style="color:#f92672">)&lt;/span> exited normally&lt;span style="color:#f92672">]&lt;/span>
+Sum: &lt;span style="color:#ae81ff">103&lt;/span>
+&lt;/code>&lt;/pre>&lt;/div>&lt;p>This time, the breakpoint is hit at every call to &lt;code>foo&lt;/code>.&lt;/p>
+&lt;p>I&amp;rsquo;m not sure about the exact underlying behaviour, but moral of the story: just don&amp;rsquo;t manually &lt;code>continue&lt;/code> when breakpoint commands are defined, to avoid unnecessary headache.&lt;/p></content></item></channel></rss>
