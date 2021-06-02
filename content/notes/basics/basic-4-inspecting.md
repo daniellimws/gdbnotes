@@ -6,7 +6,7 @@ slug: basics/inspecting
 tags:
 - basics
 title: Inspecting
-weight: 4
+weight: 004
 ---
 
 

@@ -6,7 +6,7 @@ slug: basics/breakpoints
 tags:
 - basics
 title: Breakpoints
-weight: 2
+weight: 002
 ---
 
 {{< code language="c" title="basic.c" id="1" expand="Show" collapse="Hide" isCollapsed="true" >}}

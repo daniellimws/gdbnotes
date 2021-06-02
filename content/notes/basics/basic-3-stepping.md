@@ -6,7 +6,7 @@ slug: basics/stepping
 tags:
 - basics
 title: Stepping
-weight: 3
+weight: 003
 ---
 
 {{< code language="c" title="basic.c" id="1" expand="Show" collapse="Hide" isCollapsed="true" >}}

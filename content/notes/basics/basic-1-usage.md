@@ -6,7 +6,7 @@ slug: basics/usage
 tags:
 - basics
 title: Usage
-weight: 1
+weight: 001
 ---
 
 {{< code language="c" title="basic.c" id="1" expand="Show" collapse="Hide" isCollapsed="false" >}}

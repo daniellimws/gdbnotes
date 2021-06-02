@@ -13,8 +13,8 @@
       {{ $PageContext = .Site }}
     {{ end }}
 
-    {{ range $category, $taxonomy := .Site.Taxonomies.categories }}
     <div class="post on-list">
+    {{ range $category, $taxonomy := .Site.Taxonomies.categories }}
       <h3 class="post-title">{{ title $category }}</h3>
       <ul>
       {{ range .Pages }}
@@ -23,7 +23,7 @@
         </li>
       {{ end }}
       </ul>
-    </div>
     {{ end }}
+    </div>
   </div>
 {{ end }}
